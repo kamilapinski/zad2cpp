@@ -81,7 +81,7 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
             i++;
         }
 
-        string ans = MainQueue.front();
+        string& ans = MainQueue.front();
 
         while (!SupportStack.empty()) {
             MainQueue.push_front(SupportStack.top());
