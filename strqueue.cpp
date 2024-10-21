@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <deque>
 #include <stack>
+#include <string>
 
 using namespace std;
 
@@ -64,7 +65,44 @@ void strqueue_remove_at(unsigned long id, size_t position) {
 }
 
 const char* strqueue_get_at(unsigned long id, size_t position) {
-    // TODO
+    if (debug)
+        cerr << "strqueue_get_at(" << id << ", " << position << ")\n";
+
+    auto it = Map.find(id);
+    auto MainQueue = it->second;
+
+    if (it != Map.end() && position < MainQueue.size()) {
+        size_t i = 0;
+        stack<string> SupportStack;
+
+        while (i < position) {
+            SupportStack.push(MainQueue.front());
+            MainQueue.pop_front();
+            i++;
+        }
+
+        string ans = MainQueue.front();
+
+        while (!SupportStack.empty()) {
+            MainQueue.push_front(SupportStack.top());
+            SupportStack.pop();
+        }
+
+        if (debug)
+            cerr << "strqueue_get_at returns \"" << ans << "\"\n";
+
+        return ans.c_str();
+    }
+    else if (debug) {
+        if (it == Map.end())
+            cerr << "strqueue_get_at: queue " << id << " does not exist\n";
+        else if (position >= MainQueue.size())
+            cerr << "strqueue_get_at: queue " << id << " does not contain string at position " << position <<"\n";
+
+        cerr << "strqueue_get_at returns NULL\n";
+    }
+
+    return NULL;
 }
 
 void strqueue_clear(unsigned long id) {
