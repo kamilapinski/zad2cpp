@@ -1,11 +1,10 @@
 #ifndef STRQUEUE_H
 #define STRQUEUE_H
 
-#include <stdio.h>
+#include <cstdio>
 #include <stdbool.h>
 
 #ifdef __cplusplus
-#include <iostream>
 namespace cxx {
 extern "C" {
 #endif
