@@ -15,7 +15,12 @@ unsigned long strqueue_new() {
 void strqueue_delete(unsigned long id) {
     if (debug) cerr << "strqueue_delete(" << id << ")\n";
     size_t answer = Map.erase(id);
-    if (debug && answer > 0) cerr << "strqueue_delete done\n";
+    if (debug) {
+        if (answer > 0)
+            cerr << "strqueue_delete done\n";
+        else
+            cerr << "strqueue_delete failed\n";
+    }
 }
 
 size_t strqueue_size(unsigned long id) {
