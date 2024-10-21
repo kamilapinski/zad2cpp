@@ -1,4 +1,10 @@
 #include "strqueue.h"
+#include <unordered_map>
+#include <deque>
+
+using namespace std;
+
+static unordered_map<int, deque<string>> Map;
 
 unsigned long strqueue_new() {
     // TODO
