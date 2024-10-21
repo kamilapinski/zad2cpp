@@ -1,7 +1,7 @@
 #ifndef STRQUEUE_H
 #define STRQUEUE_H
 
-#include <cstdio>
+#include <stdio.h>
 #include <stdbool.h>
 
 #ifdef __cplusplus
