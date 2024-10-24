@@ -26,7 +26,7 @@ extern "C" {
 #endif // STRQUEUE_H
 
 #ifndef NDEBUG
-    const bool debug = true;
-#else
     const bool debug = false;
+#else
+    const bool debug = true;
 #endif
