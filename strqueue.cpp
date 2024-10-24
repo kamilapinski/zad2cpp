@@ -110,5 +110,43 @@ void strqueue_clear(unsigned long id) {
 }
 
 int strqueue_comp(unsigned long id1, unsigned long id2) {
-    // TODO
+    if (debug)
+        cerr << "strqueue_comp(" << id1 << ", " << id2 << ")\n";
+
+    deque<string> Deque1 = Map[id1]; 
+    deque<string> Deque2 = Map[id2]; 
+
+    if (debug) {
+        if (Deque1.empty()) cerr << "strqueue_comp: queue 1 does not exist\n";
+        if (Deque2.empty()) cerr << "strqueue_comp: queue 2 does not exist\n";
+    }
+
+    deque<string>::iterator it1 = Deque1.begin();
+    deque<string>::iterator it2 = Deque2.begin();
+
+    while (it1 < Deque1.end() && it2 < Deque2.end() && (*it1).compare(*it2) == 0)
+        it1++, it2++;
+
+    if (it1 < Deque1.end() && it2 < Deque2.end()) {
+        if ((*it1).compare(*it2) < 0) {
+            if (debug) cerr << "strqueue_comp returns -1\n";
+            return -1;
+        }
+        else {
+            if (debug) cerr << "strqueue_comp returns 1\n";
+            return 1;
+        }
+    }
+    else if (it1 < Deque1.end()) {
+        if (debug) cerr << "strqueue_comp returns 1\n";
+        return 1;
+    }
+    else if (it2 < Deque2.end()) {
+        if (debug) cerr << "strqueue_comp returns -1\n";
+        return -1;
+    }
+    else {
+        if (debug) cerr << "strqueue_comp returns 0\n";
+        return 0;
+    }
 }
