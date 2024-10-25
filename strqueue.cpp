@@ -124,21 +124,9 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
     auto MainQueue = it->second;
 
     if (it != Map.end() && position < MainQueue.size()) {
-        size_t i = 0;
-        stack<string> SupportStack;
+        deque<string>::iterator deque_it = MainQueue.begin() + position;
 
-        while (i < position) {
-            SupportStack.push(MainQueue.front());
-            MainQueue.pop_front();
-            i++;
-        }
-
-        string& ans = MainQueue.front();
-
-        while (!SupportStack.empty()) {
-            MainQueue.push_front(SupportStack.top());
-            SupportStack.pop();
-        }
+        string& ans = *deque_it;
 
         if (debug)
             cerr << "strqueue_get_at returns \"" << ans << "\"\n";
