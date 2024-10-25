@@ -37,7 +37,7 @@ namespace cxx {
 #endif // STRQUEUE_H
 
 #ifndef NDEBUG
-    const bool debug = false;
-#else
     const bool debug = true;
+#else
+    const bool debug = false;
 #endif
