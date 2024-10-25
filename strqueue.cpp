@@ -14,7 +14,7 @@ unsigned long strqueue_new() {
     static unsigned long currId = 0;
     Map[currId] = deque<string>();
     currId++;
-    if (debug) cerr << "strqueue_new returns " << currId - 1;
+    if (debug) cerr << "strqueue_new returns " << currId - 1 << "\n";
     return currId - 1;
 }
 
@@ -47,17 +47,17 @@ size_t strqueue_size(unsigned long id) {
 
 void strqueue_insert_at(unsigned long id, size_t position, const char* str) {
     if (debug) 
-        cerr << "strqueue_insert_at(" << id << ", " << position << ", " << str << ")\n";
+        cerr << "strqueue_insert_at(" << id << ", " << position << ", \"" << str << "\")\n";
 
-    auto it = Map.find(id);
+    const auto it = Map.find(id);
 
     if (it != Map.end() && str != NULL) {
-        auto MainQueue = it->second;
-        size_t i = MainQueue.size() - 1;
+        auto& MainQueue = it->second;
+        size_t i = MainQueue.size();
 
         stack<string> SupportStack;
 
-        while (i >= position) {
+        while (i > position) {
             SupportStack.push(MainQueue.back());
             MainQueue.pop_back();
             i--;
@@ -87,7 +87,7 @@ void strqueue_remove_at(unsigned long id, size_t position) {
             cerr << "strqueue_remove_at: queue " << id << " does not exist";
         return;
     }
-    auto currQueue = it->second;
+    auto& currQueue = it->second;
     if (position >= currQueue.size()) {
         cerr << "strqueue_remove_at: queue " << id 
              << " does not contain string at position " << position;
@@ -111,7 +111,7 @@ void strqueue_remove_at(unsigned long id, size_t position) {
     }
 
     if (debug) {
-        cerr << "strqueue_remove_at done";
+        cerr << "strqueue_remove_at done\n";
     }
 
 }
@@ -120,8 +120,8 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
     if (debug)
         cerr << "strqueue_get_at(" << id << ", " << position << ")\n";
 
-    auto it = Map.find(id);
-    auto MainQueue = it->second;
+    const auto it = Map.find(id);
+    auto& MainQueue = it->second;
 
     if (it != Map.end() && position < MainQueue.size()) {
         deque<string>::iterator deque_it = MainQueue.begin() + position;
@@ -157,7 +157,7 @@ void strqueue_clear(unsigned long id) {
         return;
     }
     
-    deque<string> currQueue = it_dq->second;
+    deque<string>& currQueue = it_dq->second;
     
     while (!currQueue.empty()) {
         currQueue.pop_back();
