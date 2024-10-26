@@ -28,7 +28,7 @@ void strqueue_delete(unsigned long id) {
         if (answer > 0)
             cerr << "strqueue_delete done\n";
         else
-            cerr << "strqueue_delete failed\n";
+            cerr << "strqueue_delete: queue " << id << " does not exist\n";
     }
 }
 
@@ -167,7 +167,7 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
 
 void strqueue_clear(unsigned long id) {
     if (debug)
-        cerr << "stqueue_clear(" << id << ")";
+        cerr << "strqueue_clear(" << id << ")\n";
     
     const auto it_dq = Map().find(id);
 
