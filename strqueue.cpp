@@ -19,19 +19,20 @@ unordered_map<unsigned long, deque<string>>& Map() {
 }
 
 unsigned long strqueue_new() {
-    if (debug) cerr << "strqueue_new()\n";
+    std::ios_base::Init manualInit;
+    if constexpr (debug) cerr << "strqueue_new()\n";
     static unsigned long currId = 0;
     Map()[currId] = deque<string>();
     currId++;
-    if (debug) cerr << "strqueue_new returns " << currId - 1 << "\n";
+    if constexpr (debug) cerr << "strqueue_new returns " << currId - 1 << "\n";
     return currId - 1;
 }
 
 void strqueue_delete(unsigned long id) {
-    if (debug) cerr << "strqueue_delete(" << id << ")\n";
+    if constexpr (debug) cerr << "strqueue_delete(" << id << ")\n";
 
     size_t answer = Map().erase(id);
-if (debug) {
+    if constexpr (debug) {
         if (answer > 0)
             cerr << "strqueue_delete done\n";
         else
@@ -40,23 +41,23 @@ if (debug) {
 }
 
 size_t strqueue_size(unsigned long id) {
-    if (debug) cerr << "strqueue_size(" << id << ")\n";
+    if constexpr (debug) cerr << "strqueue_size(" << id << ")\n";
     const auto answer_iterator = Map().find(id);
     if (answer_iterator == Map().end()) {
-        if (debug)
+        if constexpr (debug)
             cerr << "strqueue_size: queue " << id << " does not exist\n"
                  << "strqueue_size returns 0\n";
 
         return 0;
     }
     size_t answer = answer_iterator->second.size();
-    if (debug)
+    if constexpr (debug)
         cerr << "strqueue_size returns " << answer << "\n";
     return answer;
 }
 
 void strqueue_insert_at(unsigned long id, size_t position, const char* str) {
-    if (debug) {
+    if constexpr (debug) {
         cerr << "strqueue_insert_at(" << id << ", " << position << ", ";
         if (str == NULL) {
             cerr << "NULL";
@@ -88,10 +89,10 @@ void strqueue_insert_at(unsigned long id, size_t position, const char* str) {
             SupportStack.pop();
         }
 
-        if (debug)
+        if constexpr (debug)
             cerr << "strqueue_insert_at done\n";
     }
-    else if (debug) {
+    else if constexpr (debug) {
         cerr << "strqueue_insert_at";
         if (it == Map().end()) {
             cerr << ": queue " << id << " does not exist";
@@ -104,18 +105,18 @@ void strqueue_insert_at(unsigned long id, size_t position, const char* str) {
 }
 
 void strqueue_remove_at(unsigned long id, size_t position) {
-    if (debug)
+    if constexpr (debug)
         cerr << "strqueue_remove_at(" << id << ", " << position << ")\n";
     
     const auto it = Map().find(id);
     if (it == Map().end()) {
-        if (debug)
+        if constexpr (debug)
             cerr << "strqueue_remove_at: queue " << id << " does not exist\n";
         return;
     }
     auto& currQueue = it->second;
     if (position >= currQueue.size()) {
-        if (debug)
+        if constexpr (debug)
             cerr << "strqueue_remove_at: queue " << id 
              << " does not contain string at position " << position << "\n";
         return;
@@ -137,14 +138,14 @@ void strqueue_remove_at(unsigned long id, size_t position) {
         SupportStack.pop();
     }
 
-    if (debug) {
+    if constexpr (debug) {
         cerr << "strqueue_remove_at done\n";
     }
 
 }
 
 const char* strqueue_get_at(unsigned long id, size_t position) {
-    if (debug)
+    if constexpr (debug)
         cerr << "strqueue_get_at(" << id << ", " << position << ")\n";
 
     const auto it = Map().find(id);
@@ -155,12 +156,12 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
 
         string& ans = *deque_it;
 
-        if (debug)
+        if constexpr (debug)
             cerr << "strqueue_get_at returns \"" << ans << "\"\n";
 
         return ans.c_str();
     }
-    else if (debug) {
+    else if constexpr (debug) {
         if (it == Map().end())
             cerr << "strqueue_get_at: queue " << id << " does not exist\n";
         else if (position >= MainQueue.size())
@@ -173,13 +174,13 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
 }
 
 void strqueue_clear(unsigned long id) {
-    if (debug)
+    if constexpr (debug)
         cerr << "strqueue_clear(" << id << ")\n";
     
     const auto it_dq = Map().find(id);
 
     if (it_dq == Map().end()) {
-        if (debug)
+        if constexpr (debug)
             cerr << "strqueue_clear: queue " << id << " does not exist\n";
         return;
     }
@@ -193,7 +194,7 @@ void strqueue_clear(unsigned long id) {
 }
 
 int strqueue_comp(unsigned long id1, unsigned long id2) {
-    if (debug)
+    if constexpr (debug)
         cerr << "strqueue_comp(" << id1 << ", " << id2 << ")\n";
 
     const auto it_dq1 = Map().find(id1);
@@ -203,14 +204,14 @@ int strqueue_comp(unsigned long id1, unsigned long id2) {
 
     if (it_dq1 == Map().end()) {
         Deque1 = deque<string>();
-        if (debug) cerr << "strqueue_comp: queue " << id1 << " does not exist\n";
+        if constexpr (debug) cerr << "strqueue_comp: queue " << id1 << " does not exist\n";
     }
     else {
         Deque1 = Map()[id1];
     }
     if (it_dq2 == Map().end()) {
         Deque2 = deque<string>();
-        if (debug) cerr << "strqueue_comp: queue " << id2 << " does not exist\n";
+        if constexpr (debug) cerr << "strqueue_comp: queue " << id2 << " does not exist\n";
     }
     else {
         Deque2 = Map()[id2];
@@ -224,24 +225,24 @@ int strqueue_comp(unsigned long id1, unsigned long id2) {
 
     if (it1 < Deque1.end() && it2 < Deque2.end()) {
         if ((*it1).compare(*it2) < 0) {
-            if (debug) cerr << "strqueue_comp returns -1\n";
+            if constexpr (debug) cerr << "strqueue_comp returns -1\n";
             return -1;
         }
         else {
-            if (debug) cerr << "strqueue_comp returns 1\n";
+            if constexpr (debug) cerr << "strqueue_comp returns 1\n";
             return 1;
         }
     }
     else if (it1 < Deque1.end()) {
-        if (debug) cerr << "strqueue_comp returns 1\n";
+        if constexpr (debug) cerr << "strqueue_comp returns 1\n";
         return 1;
     }
     else if (it2 < Deque2.end()) {
-        if (debug) cerr << "strqueue_comp returns -1\n";
+        if constexpr (debug) cerr << "strqueue_comp returns -1\n";
         return -1;
     }
     else {
-        if (debug) cerr << "strqueue_comp returns 0\n";
+        if constexpr (debug) cerr << "strqueue_comp returns 0\n";
         return 0;
     }
 }
