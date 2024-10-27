@@ -5,7 +5,13 @@
 #include <stack>
 #include <string>
 
-using namespace std;
+namespace cxx {
+
+using std::cerr;
+using std::unordered_map;
+using std::deque;
+using std::string;
+using std::stack;
 
 unordered_map<unsigned long, deque<string>>& Map() {
     static unordered_map<unsigned long, deque<string>>* Map = new unordered_map<unsigned long, deque<string>>();
@@ -23,8 +29,9 @@ unsigned long strqueue_new() {
 
 void strqueue_delete(unsigned long id) {
     if (debug) cerr << "strqueue_delete(" << id << ")\n";
+
     size_t answer = Map().erase(id);
-    if (debug) {
+if (debug) {
         if (answer > 0)
             cerr << "strqueue_delete done\n";
         else
@@ -237,4 +244,5 @@ int strqueue_comp(unsigned long id1, unsigned long id2) {
         if (debug) cerr << "strqueue_comp returns 0\n";
         return 0;
     }
+}
 }
