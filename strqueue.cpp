@@ -24,8 +24,16 @@ unordered_map<unsigned long, deque<string>>& Map() {
     return *Map;
 }
 
+void initializeCerr() {
+    static bool isInitialized = false;
+    if (!isInitialized) {
+        std::ios_base::Init manualInit;
+        isInitialized = true;
+    }
+}
+
 unsigned long strqueue_new() {
-    std::ios_base::Init manualInit;
+    initializeCerr();
     if constexpr (debug) cerr << "strqueue_new()\n";
     static unsigned long currId = 0;
     Map()[currId] = deque<string>();
@@ -35,6 +43,7 @@ unsigned long strqueue_new() {
 }
 
 void strqueue_delete(unsigned long id) {
+    initializeCerr();
     if constexpr (debug) cerr << "strqueue_delete(" << id << ")\n";
 
     size_t answer = Map().erase(id);
@@ -47,6 +56,7 @@ void strqueue_delete(unsigned long id) {
 }
 
 size_t strqueue_size(unsigned long id) {
+    initializeCerr();
     if constexpr (debug) cerr << "strqueue_size(" << id << ")\n";
     const auto answer_iterator = Map().find(id);
     if (answer_iterator == Map().end()) {
@@ -63,6 +73,7 @@ size_t strqueue_size(unsigned long id) {
 }
 
 void strqueue_insert_at(unsigned long id, size_t position, const char* str) {
+    initializeCerr();
     if constexpr (debug) {
         cerr << "strqueue_insert_at(" << id << ", " << position << ", ";
         if (str == NULL) {
@@ -111,6 +122,7 @@ void strqueue_insert_at(unsigned long id, size_t position, const char* str) {
 }
 
 void strqueue_remove_at(unsigned long id, size_t position) {
+    initializeCerr();
     if constexpr (debug)
         cerr << "strqueue_remove_at(" << id << ", " << position << ")\n";
     
@@ -151,6 +163,7 @@ void strqueue_remove_at(unsigned long id, size_t position) {
 }
 
 const char* strqueue_get_at(unsigned long id, size_t position) {
+    initializeCerr();
     if constexpr (debug)
         cerr << "strqueue_get_at(" << id << ", " << position << ")\n";
 
@@ -180,6 +193,7 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
 }
 
 void strqueue_clear(unsigned long id) {
+    initializeCerr();
     if constexpr (debug)
         cerr << "strqueue_clear(" << id << ")\n";
     
@@ -200,6 +214,7 @@ void strqueue_clear(unsigned long id) {
 }
 
 int strqueue_comp(unsigned long id1, unsigned long id2) {
+    initializeCerr();
     if constexpr (debug)
         cerr << "strqueue_comp(" << id1 << ", " << id2 << ")\n";
 
