@@ -7,6 +7,12 @@
 
 namespace cxx {
 
+#ifndef NDEBUG
+    const bool debug = true;
+#else
+    const bool debug = false;
+#endif
+
 using std::cerr;
 using std::unordered_map;
 using std::deque;
