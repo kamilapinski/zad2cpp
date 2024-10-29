@@ -19,16 +19,20 @@ using std::deque;
 using std::string;
 using std::stack;
 
-unordered_map<unsigned long, deque<string>>& Map() {
-    static unordered_map<unsigned long, deque<string>>* Map = new unordered_map<unsigned long, deque<string>>();
-    return *Map;
+// map that contains all strqueues
+unordered_map<unsigned long, deque<string>>& map() {
+    static unordered_map<unsigned long, deque<string>>* map = new unordered_map<unsigned long, deque<string>>();
+    return *map;
 }
 
+// function that initializes stderr
 void initializeCerr() {
-    static bool isInitialized = false;
-    if (!isInitialized) {
-        std::ios_base::Init manualInit;
-        isInitialized = true;
+    if constexpr (debug) {
+        static bool isInitialized = false;
+        if (!isInitialized) {
+            std::ios_base::Init manualInit;
+            isInitialized = true;
+        }
     }
 }
 
@@ -36,7 +40,7 @@ unsigned long strqueue_new() {
     initializeCerr();
     if constexpr (debug) cerr << "strqueue_new()\n";
     static unsigned long currId = 0;
-    Map()[currId] = deque<string>();
+    map()[currId] = deque<string>();
     currId++;
     if constexpr (debug) cerr << "strqueue_new returns " << currId - 1 << "\n";
     return currId - 1;
@@ -46,7 +50,7 @@ void strqueue_delete(unsigned long id) {
     initializeCerr();
     if constexpr (debug) cerr << "strqueue_delete(" << id << ")\n";
 
-    size_t answer = Map().erase(id);
+    size_t answer = map().erase(id);
     if constexpr (debug) {
         if (answer > 0)
             cerr << "strqueue_delete done\n";
@@ -58,8 +62,8 @@ void strqueue_delete(unsigned long id) {
 size_t strqueue_size(unsigned long id) {
     initializeCerr();
     if constexpr (debug) cerr << "strqueue_size(" << id << ")\n";
-    const auto answer_iterator = Map().find(id);
-    if (answer_iterator == Map().end()) {
+    const auto answer_iterator = map().find(id);
+    if (answer_iterator == map().end()) {
         if constexpr (debug)
             cerr << "strqueue_size: queue " << id << " does not exist\n"
                  << "strqueue_size returns 0\n";
@@ -85,25 +89,25 @@ void strqueue_insert_at(unsigned long id, size_t position, const char* str) {
         cerr << ")\n";
     }
 
-    const auto it = Map().find(id);
+    const auto it = map().find(id);
 
-    if (it != Map().end() && str != NULL) {
-        auto& MainQueue = it->second;
-        size_t i = MainQueue.size();
+    if (it != map().end() && str != NULL) {
+        auto& currQueue = it->second;
+        size_t i = currQueue.size();
 
-        stack<string> SupportStack;
+        stack<string> supportStack;
 
         while (i > position) {
-            SupportStack.push(MainQueue.back());
-            MainQueue.pop_back();
+            supportStack.push(currQueue.back());
+            currQueue.pop_back();
             i--;
         }
 
-        MainQueue.push_back(str);
+        currQueue.push_back(str);
 
-        while (!SupportStack.empty()) {
-            MainQueue.push_back(SupportStack.top());
-            SupportStack.pop();
+        while (!supportStack.empty()) {
+            currQueue.push_back(supportStack.top());
+            supportStack.pop();
         }
 
         if constexpr (debug)
@@ -111,7 +115,7 @@ void strqueue_insert_at(unsigned long id, size_t position, const char* str) {
     }
     else if constexpr (debug) {
         cerr << "strqueue_insert_at";
-        if (it == Map().end()) {
+        if (it == map().end()) {
             cerr << ": queue " << id << " does not exist";
         }
         else if (str == NULL) {
@@ -126,8 +130,8 @@ void strqueue_remove_at(unsigned long id, size_t position) {
     if constexpr (debug)
         cerr << "strqueue_remove_at(" << id << ", " << position << ")\n";
     
-    const auto it = Map().find(id);
-    if (it == Map().end()) {
+    const auto it = map().find(id);
+    if (it == map().end()) {
         if constexpr (debug)
             cerr << "strqueue_remove_at: queue " << id << " does not exist\n";
         return;
@@ -141,19 +145,19 @@ void strqueue_remove_at(unsigned long id, size_t position) {
     }
 
     size_t counter = 0;
-    stack<string> SupportStack;
+    stack<string> supportStack;
 
     while (counter < position) {
-        SupportStack.push(currQueue.front());
+        supportStack.push(currQueue.front());
         currQueue.pop_front();
         counter++;
     }
 
     currQueue.pop_front();
 
-    while (!SupportStack.empty()) {
-        currQueue.push_front(SupportStack.top());
-        SupportStack.pop();
+    while (!supportStack.empty()) {
+        currQueue.push_front(supportStack.top());
+        supportStack.pop();
     }
 
     if constexpr (debug) {
@@ -167,11 +171,11 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
     if constexpr (debug)
         cerr << "strqueue_get_at(" << id << ", " << position << ")\n";
 
-    const auto it = Map().find(id);
-    auto& MainQueue = it->second;
+    const auto it = map().find(id);
+    auto& currQueue = it->second;
 
-    if (it != Map().end() && position < MainQueue.size()) {
-        deque<string>::iterator deque_it = MainQueue.begin() + position;
+    if (it != map().end() && position < currQueue.size()) {
+        deque<string>::iterator deque_it = currQueue.begin() + position;
 
         string& ans = *deque_it;
 
@@ -181,9 +185,9 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
         return ans.c_str();
     }
     else if constexpr (debug) {
-        if (it == Map().end())
+        if (it == map().end())
             cerr << "strqueue_get_at: queue " << id << " does not exist\n";
-        else if (position >= MainQueue.size())
+        else if (position >= currQueue.size())
             cerr << "strqueue_get_at: queue " << id << " does not contain string at position " << position <<"\n";
 
         cerr << "strqueue_get_at returns NULL\n";
@@ -197,9 +201,9 @@ void strqueue_clear(unsigned long id) {
     if constexpr (debug)
         cerr << "strqueue_clear(" << id << ")\n";
     
-    const auto it_dq = Map().find(id);
+    const auto it_dq = map().find(id);
 
-    if (it_dq == Map().end()) {
+    if (it_dq == map().end()) {
         if constexpr (debug)
             cerr << "strqueue_clear: queue " << id << " does not exist\n";
         return;
@@ -218,33 +222,33 @@ int strqueue_comp(unsigned long id1, unsigned long id2) {
     if constexpr (debug)
         cerr << "strqueue_comp(" << id1 << ", " << id2 << ")\n";
 
-    const auto it_dq1 = Map().find(id1);
-    const auto it_dq2 = Map().find(id2);
+    const auto it_deque1 = map().find(id1);
+    const auto it_deque2 = map().find(id2);
 
-    deque<string> Deque1, Deque2;
+    deque<string> deque1, deque2;
 
-    if (it_dq1 == Map().end()) {
-        Deque1 = deque<string>();
+    if (it_deque1 == map().end()) {
+        deque1 = deque<string>();
         if constexpr (debug) cerr << "strqueue_comp: queue " << id1 << " does not exist\n";
     }
     else {
-        Deque1 = Map()[id1];
+        deque1 = map()[id1];
     }
-    if (it_dq2 == Map().end()) {
-        Deque2 = deque<string>();
+    if (it_deque2 == map().end()) {
+        deque2 = deque<string>();
         if constexpr (debug) cerr << "strqueue_comp: queue " << id2 << " does not exist\n";
     }
     else {
-        Deque2 = Map()[id2];
+        deque2 = map()[id2];
     }
 
-    deque<string>::iterator it1 = Deque1.begin();
-    deque<string>::iterator it2 = Deque2.begin();
+    deque<string>::iterator it1 = deque1.begin();
+    deque<string>::iterator it2 = deque2.begin();
 
-    while (it1 < Deque1.end() && it2 < Deque2.end() && (*it1).compare(*it2) == 0)
+    while (it1 < deque1.end() && it2 < deque2.end() && (*it1).compare(*it2) == 0)
         it1++, it2++;
 
-    if (it1 < Deque1.end() && it2 < Deque2.end()) {
+    if (it1 < deque1.end() && it2 < deque2.end()) {
         if ((*it1).compare(*it2) < 0) {
             if constexpr (debug) cerr << "strqueue_comp returns -1\n";
             return -1;
@@ -254,11 +258,11 @@ int strqueue_comp(unsigned long id1, unsigned long id2) {
             return 1;
         }
     }
-    else if (it1 < Deque1.end()) {
+    else if (it1 < deque1.end()) {
         if constexpr (debug) cerr << "strqueue_comp returns 1\n";
         return 1;
     }
-    else if (it2 < Deque2.end()) {
+    else if (it2 < deque2.end()) {
         if constexpr (debug) cerr << "strqueue_comp returns -1\n";
         return -1;
     }
