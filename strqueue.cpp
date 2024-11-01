@@ -4,7 +4,6 @@
 #include <deque>
 #include <stack>
 #include <string>
-#include <initializer_list>
 #include <climits>
 #include <cassert>
 
@@ -25,15 +24,19 @@ using std::initializer_list;
 
 
 namespace {
-    // strqueue_map that contains all strqueues
+    // Holds all strqueues indexed by their IDs.
     unordered_map<unsigned long, deque<string>>& strqueue_map() {
-        static unordered_map<unsigned long, deque<string>>* strqueue_map = new unordered_map<unsigned long, deque<string>>();
+        static unordered_map<unsigned long, deque<string>>* strqueue_map = 
+                        new unordered_map<unsigned long, deque<string>>();
         return *strqueue_map;
     }
 
     // function that initializes stderr
     void initializeCerr() {
-        static bool isInitialized = false;
+
+        // to ensure initialization happens only once
+        static bool isInitialized = false; 
+
         if (!isInitialized) {
             std::ios_base::Init manualInit;
             isInitialized = true;
@@ -41,6 +44,7 @@ namespace {
 
     }
 
+    // Variadic logging function used if debug mode is on
     template<typename... Args>
     void LOG_MESSAGE(Args... args) {
         if constexpr (debug) {
@@ -53,11 +57,12 @@ namespace {
 unsigned long strqueue_new() {
     static unsigned long currId = 0;
     LOG_MESSAGE("strqueue_new()\n");
-    if constexpr (debug) {
-        [[maybe_unused]] static bool isMax = false;
-        assert(!isMax);
-        isMax = currId == ULONG_MAX;
-    }
+
+    // check for overflows
+    [[maybe_unused]] static bool isMax = false;
+    assert(!isMax);
+    isMax = currId == ULONG_MAX;
+
     strqueue_map()[currId] = deque<string>();
     currId++;
     LOG_MESSAGE("strqueue_new returns ", currId - 1, "\n");
@@ -66,7 +71,9 @@ unsigned long strqueue_new() {
 
 void strqueue_delete(unsigned long id) {
     LOG_MESSAGE("strqueue_delete(", id, ")\n");
+
     size_t answer = strqueue_map().erase(id);
+
     if (answer > 0)
         LOG_MESSAGE("strqueue_delete done\n");
     else
@@ -75,6 +82,7 @@ void strqueue_delete(unsigned long id) {
 
 size_t strqueue_size(unsigned long id) {
     LOG_MESSAGE("strqueue_size(", id, ")\n");
+
     const auto answer_iterator = strqueue_map().find(id);
     if (answer_iterator == strqueue_map().end()) {
         if constexpr (debug) {
@@ -83,6 +91,7 @@ size_t strqueue_size(unsigned long id) {
         }
         return 0;
     }
+
     size_t answer = answer_iterator->second.size();
     LOG_MESSAGE("strqueue_size returns ", answer, "\n");
     return answer;
@@ -98,21 +107,21 @@ void strqueue_insert_at(unsigned long id, size_t position, const char* str) {
     }
 
     const auto it = strqueue_map().find(id);
-
+    
     if (it != strqueue_map().end() && str != NULL) {
         auto& currQueue = it->second;
-        size_t i = currQueue.size();
 
+        // stack for restoring elements of queue in correct order
         stack<string> supportStack;
 
-        while (i > position) {
+        while (currQueue.size() > position) {
             supportStack.push(currQueue.back());
             currQueue.pop_back();
-            i--;
         }
 
-        currQueue.push_back(str);
+        currQueue.push_back(str); // insert target element
 
+        // restore the sufix of queue
         while (!supportStack.empty()) {
             currQueue.push_back(supportStack.top());
             supportStack.pop();
@@ -141,26 +150,26 @@ void strqueue_remove_at(unsigned long id, size_t position) {
         return;
     }
     auto& currQueue = it->second;
-    if (position >= currQueue.size()) {
+    if (position >= currQueue.size()) { // check if position is valid
         if constexpr (debug)
             LOG_MESSAGE("strqueue_remove_at: queue ", id, 
                         " does not contain string at position ", position, "\n");
         return;
     }
 
-    size_t counter = 0;
+    // stack for restoring elements in correct order
     stack<string> supportStack;
 
-    while (counter < position) {
-        supportStack.push(currQueue.front());
-        currQueue.pop_front();
-        counter++;
+    while (currQueue.size() > position + 1) {
+        supportStack.push(currQueue.back());
+        currQueue.pop_back();
     }
 
-    currQueue.pop_front();
+    currQueue.pop_back(); // remove target element
 
+    // restore the sufix of queue
     while (!supportStack.empty()) {
-        currQueue.push_front(supportStack.top());
+        currQueue.push_back(supportStack.top());
         supportStack.pop();
     }
 
@@ -171,7 +180,7 @@ void strqueue_remove_at(unsigned long id, size_t position) {
 }
 
 const char* strqueue_get_at(unsigned long id, size_t position) {
-    LOG_MESSAGE("strqueue_get_at(", id, ", ", position, "\n");
+    LOG_MESSAGE("strqueue_get_at(", id, ", ", position, ")\n");
 
     const auto it = strqueue_map().find(id);
     auto& currQueue = it->second;
@@ -240,31 +249,14 @@ int strqueue_comp(unsigned long id1, unsigned long id2) {
         deque2 = strqueue_map()[id2];
     }
 
-    deque<string>::iterator it1 = deque1.begin();
-    deque<string>::iterator it2 = deque2.begin();
-
-    while (it1 < deque1.end() && it2 < deque2.end() && (*it1).compare(*it2) == 0)
-        it1++, it2++;
-
-    if (it1 < deque1.end() && it2 < deque2.end()) {
-        if ((*it1).compare(*it2) < 0) {
-            LOG_MESSAGE("strqueue_comp returns -1\n");
-            return -1;
-        }
-        else {
-            LOG_MESSAGE("strqueue_comp returns 1\n");
-            return 1;
-        }
-    }
-    else if (it1 < deque1.end()) {
-        LOG_MESSAGE("strqueue_comp returns 1\n");
-        return 1;
-    }
-    else if (it2 < deque2.end()) {
+    if (deque1 < deque2) {
         LOG_MESSAGE("strqueue_comp returns -1\n");
         return -1;
     }
-    else {
+    else if (deque1 > deque2) {
+        LOG_MESSAGE("strqueue_comp returns 1\n");
+        return 1;
+    } else {
         LOG_MESSAGE("strqueue_comp returns 0\n");
         return 0;
     }
