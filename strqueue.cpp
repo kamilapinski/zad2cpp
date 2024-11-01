@@ -20,6 +20,7 @@ using std::unordered_map;
 using std::deque;
 using std::string;
 using std::stack;
+using std::min;
 
 
 namespace {
@@ -110,21 +111,7 @@ void strqueue_insert_at(unsigned long id, size_t position, const char* str) {
     if (it != strqueue_map().end() && str != NULL) {
         auto& currQueue = it->second;
 
-        // stack for restoring elements of queue in correct order
-        stack<string> supportStack;
-
-        while (currQueue.size() > position) {
-            supportStack.push(currQueue.back());
-            currQueue.pop_back();
-        }
-
-        currQueue.push_back(str); // insert target element
-
-        // restore the sufix of queue
-        while (!supportStack.empty()) {
-            currQueue.push_back(supportStack.top());
-            supportStack.pop();
-        }
+        currQueue.insert(currQueue.begin() + min(position, currQueue.size()), str);
 
         LOG_MESSAGE("strqueue_insert_at done\n");
     }
@@ -155,21 +142,7 @@ void strqueue_remove_at(unsigned long id, size_t position) {
         return;
     }
 
-    // stack for restoring elements in correct order
-    stack<string> supportStack;
-
-    while (currQueue.size() > position + 1) {
-        supportStack.push(currQueue.back());
-        currQueue.pop_back();
-    }
-
-    currQueue.pop_back(); // remove target element
-
-    // restore the sufix of queue
-    while (!supportStack.empty()) {
-        currQueue.push_back(supportStack.top());
-        supportStack.pop();
-    }
+    currQueue.erase(currQueue.begin() + position);
 
     LOG_MESSAGE("strqueue_remove_at done\n");
 
