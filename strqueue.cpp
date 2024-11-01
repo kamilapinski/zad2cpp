@@ -20,7 +20,6 @@ using std::unordered_map;
 using std::deque;
 using std::string;
 using std::stack;
-using std::initializer_list;
 
 
 namespace {
@@ -84,11 +83,11 @@ size_t strqueue_size(unsigned long id) {
     LOG_MESSAGE("strqueue_size(", id, ")\n");
 
     const auto answer_iterator = strqueue_map().find(id);
+
     if (answer_iterator == strqueue_map().end()) {
-        if constexpr (debug) {
-            LOG_MESSAGE("strqueue_size: queue ", id, " does not exist\n");
-            LOG_MESSAGE("strqueue_size returns 0\n");
-        }
+        LOG_MESSAGE("strqueue_size: queue ", id, " does not exist\n");
+        LOG_MESSAGE("strqueue_size returns 0\n");
+        
         return 0;
     }
 
@@ -151,9 +150,8 @@ void strqueue_remove_at(unsigned long id, size_t position) {
     }
     auto& currQueue = it->second;
     if (position >= currQueue.size()) { // check if position is valid
-        if constexpr (debug)
-            LOG_MESSAGE("strqueue_remove_at: queue ", id, 
-                        " does not contain string at position ", position, "\n");
+        LOG_MESSAGE("strqueue_remove_at: queue ", id, 
+                    " does not contain string at position ", position, "\n");
         return;
     }
 
@@ -173,9 +171,7 @@ void strqueue_remove_at(unsigned long id, size_t position) {
         supportStack.pop();
     }
 
-    if constexpr (debug) {
-        LOG_MESSAGE("strqueue_remove_at done\n");
-    }
+    LOG_MESSAGE("strqueue_remove_at done\n");
 
 }
 
@@ -206,7 +202,6 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
 }
 
 void strqueue_clear(unsigned long id) {
-    initializeCerr();
     LOG_MESSAGE("strqueue_clear(", id, ")\n");
     
     const auto it_dq = strqueue_map().find(id);
@@ -225,7 +220,6 @@ void strqueue_clear(unsigned long id) {
 }
 
 int strqueue_comp(unsigned long id1, unsigned long id2) {
-    initializeCerr();
     LOG_MESSAGE("strqueue_comp(", id1, ", ", id2, ")\n");
     
 
