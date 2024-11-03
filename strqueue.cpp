@@ -22,7 +22,7 @@ using std::string;
 using std::stack;
 using std::min;
 
-
+// anonymous namespace for helper functions
 namespace {
     // Holds all strqueues indexed by their IDs.
     unordered_map<unsigned long, deque<string>>& strqueue_map() {
@@ -88,7 +88,6 @@ size_t strqueue_size(unsigned long id) {
     if (answer_iterator == strqueue_map().end()) {
         LOG_MESSAGE("strqueue_size: queue ", id, " does not exist\n");
         LOG_MESSAGE("strqueue_size returns 0\n");
-        
         return 0;
     }
 
@@ -111,6 +110,7 @@ void strqueue_insert_at(unsigned long id, size_t position, const char* str) {
     if (it != strqueue_map().end() && str != NULL) {
         auto& currQueue = it->second;
 
+        // insert at position or at the end (if position is bigger than queue size)
         currQueue.insert(currQueue.begin() + min(position, currQueue.size()), str);
 
         LOG_MESSAGE("strqueue_insert_at done\n");
@@ -152,9 +152,9 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
     LOG_MESSAGE("strqueue_get_at(", id, ", ", position, ")\n");
 
     const auto it = strqueue_map().find(id);
-    auto& currQueue = it->second;
 
-    if (it != strqueue_map().end() && position < currQueue.size()) {
+    if (it != strqueue_map().end() && position < it->second.size()) {
+        auto& currQueue = it->second;
         deque<string>::iterator deque_it = currQueue.begin() + position;
 
         string& ans = *deque_it;
@@ -166,7 +166,7 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
         LOG_MESSAGE("strqueue_get_at: queue ", id);
         if (it == strqueue_map().end())
             LOG_MESSAGE(" does not exist\n");
-        else if (position >= currQueue.size())
+        else
             LOG_MESSAGE(" does not contain string at position ", position, "\n");
         LOG_MESSAGE("strqueue_get_at returns NULL\n");
     }
@@ -184,38 +184,27 @@ void strqueue_clear(unsigned long id) {
         return;
     }
     
-    deque<string>& currQueue = it_dq->second;
+    (it_dq->second).clear();
     
-    while (!currQueue.empty()) {
-        currQueue.pop_back();
-    }
     LOG_MESSAGE("strqueue_clear done\n");
 }
 
 int strqueue_comp(unsigned long id1, unsigned long id2) {
     LOG_MESSAGE("strqueue_comp(", id1, ", ", id2, ")\n");
     
-
     const auto it_deque1 = strqueue_map().find(id1);
     const auto it_deque2 = strqueue_map().find(id2);
 
-    deque<string> deque1, deque2;
+    // if queue doesn't exist then we consider it as empty
+    const auto& deque1 = it_deque1 != strqueue_map().end() ? it_deque1->second : deque<string>();
+    const auto& deque2 = it_deque2 != strqueue_map().end() ? it_deque2->second : deque<string>();
 
-    if (it_deque1 == strqueue_map().end()) {
-        deque1 = deque<string>();
+    if (it_deque1 == strqueue_map().end()) 
         LOG_MESSAGE("strqueue_comp: queue ", id1, " does not exist\n");
-    }
-    else {
-        deque1 = strqueue_map()[id1];
-    }
-    if (it_deque2 == strqueue_map().end()) {
-        deque2 = deque<string>();
+    if (it_deque2 == strqueue_map().end())
         LOG_MESSAGE("strqueue_comp: queue ", id2, " does not exist\n");
-    }
-    else {
-        deque2 = strqueue_map()[id2];
-    }
 
+    // compare queues lexicographically
     if (deque1 < deque2) {
         LOG_MESSAGE("strqueue_comp returns -1\n");
         return -1;
